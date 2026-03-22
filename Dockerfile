@@ -54,9 +54,10 @@ COPY --from=builder --chown=node:node /app/prisma ./prisma/
 
 # Copy built application
 COPY --from=builder --chown=node:node /app/dist ./dist
-COPY entrypoint-script.sh ./entrypoint-script.sh 
-RUN  chown node:node ./entrypoint-script.sh 
-RUN chmod +x entrypoint-script.sh
+# COPY entrypoint-script.sh ./entrypoint-script.sh 
+# RUN  chown node:node ./entrypoint-script.sh && \
+#     chmod +x entrypoint-script.sh && \
+#     sed -i 's/\r//' entrypoint-script.sh
 
 # Switch to non-root user
 USER node
@@ -64,4 +65,4 @@ USER node
 # Document port
 EXPOSE 3001
 
-CMD ["./entrypoint-script.sh"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]

@@ -1,0 +1,55 @@
+#------------------------
+# PIPELINE NAME
+#------------------------
+name: Docker Build, Scan and Push
+
+#------------------------
+# TRIGGERS
+#------------------------
+
+# Workflow runs when:
+    # 1. A code is pushed to the repo main branch
+    # 2. Manually triggered from the GitHub UI
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths-ignore:
+            - ".github/workflows"
+            - "**/*.md"
+
+#------------------------------
+# GLOBAL ENVIRONMENT VARIABLES
+#------------------------------
+env:
+    DOCKER_REPO: dolamu
+    DOCKER_IMAGE: devopsbootcamp-linker-backend
+    DOCKER_TAG: latest
+
+#-------------------------------------------
+# JOBS 1. Notify Slack that pipeline started
+#-------------------------------------------
+jobs:
+    slack-notify:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Slack Notification
+              uses: rtCamp/action-slack-notify@v2
+              env:
+                SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+                SLACK_TITLE: "Docker Build Pipeline Triggered"
+                SLACK MESSAGE: |
+                    **Event:** ${{ github.event_name }}
+
+                    **Actor:** ${{ github.actor }}
+
+                    **Branch:** ${{ github.ref_name }}
+
+                    **Commit:** ${{ github.event.head_commit.message }}
+
+
+#-----------------------------------------
+# JOB 2. Build, Scan and Push Docker Image
+#-----------------------------------------
